@@ -1,31 +1,29 @@
 /* eslint-disable */
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const webpackBaseConfig = require('./webpack.config.base');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const merge = require('webpack-merge');
-const utils = require('./utils');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const webpackBaseConfig = require('./webpack.config.base')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const merge = require('webpack-merge')
+const utils = require('./utils')
 
 class ChunksFromEntryPlugin {
   apply(compiler) {
-    compiler.hooks.emit.tap('ChunksFromEntryPlugin', compilation => {
+    compiler.hooks.emit.tap('ChunksFromEntryPlugin', (compilation) => {
       compilation.hooks.htmlWebpackPluginAlterChunks.tap(
         'ChunksFromEntryPlugin',
         (_, { plugin }) => {
           // takes entry name passed via HTMLWebpackPlugin's options
-          const entry = plugin.options.entry;
-          const entrypoint = compilation.entrypoints.get(entry);
+          const entry = plugin.options.entry
+          const entrypoint = compilation.entrypoints.get(entry)
 
-          return entrypoint.chunks.map(chunk =>
-            ({
-              names: chunk.name ? [chunk.name] : [],
-              files: chunk.files.slice(),
-              size: chunk.modulesSize(),
-              hash: chunk.hash
-            })
-          );
+          return entrypoint.chunks.map((chunk) => ({
+            names: chunk.name ? [chunk.name] : [],
+            files: chunk.files.slice(),
+            size: chunk.modulesSize(),
+            hash: chunk.hash,
+          }))
         }
-      );
-    });
+      )
+    })
   }
 }
 
@@ -35,11 +33,11 @@ let prodWebpackConfig = {
   plugins: [
     new UglifyJsPlugin({
       sourceMap: true,
-      parallel: true
+      parallel: true,
     }),
     new MiniCssExtractPlugin({
-      filename: 'static/css/[name].[hash:7].css'
-    })
+      filename: 'static/css/[name].[hash:7].css',
+    }),
   ],
   // optimization: {
   //   splitChunks: {
@@ -71,16 +69,18 @@ let prodWebpackConfig = {
 }
 
 prodWebpackConfig = utils.pushHtmlWebpackPlugins(
-  merge(webpackBaseConfig, prodWebpackConfig), {
-  // html-webpack-plugin options
-  minify: {
-    removeComments: true,
-    collapseWhitespace: true,
-    removeAttributeQuotes: true
-    // more options:
-    // https://github.com/kangax/html-minifier#options-quick-reference
+  merge(webpackBaseConfig, prodWebpackConfig),
+  {
+    // html-webpack-plugin options
+    minify: {
+      removeComments: true,
+      collapseWhitespace: true,
+      removeAttributeQuotes: true,
+      // more options:
+      // https://github.com/kangax/html-minifier#options-quick-reference
+    },
   }
-})
+)
 
 prodWebpackConfig.plugins.push(new ChunksFromEntryPlugin())
 
