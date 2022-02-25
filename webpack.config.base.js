@@ -13,7 +13,7 @@ let webpackConfig = {
 	output: {
 		path: path.join(__dirname, './dist/'),
 		filename: 'static/js/[name].[hash:7].js',
-		publicPath: '/',
+		publicPath: env === 'production' ? './' : '/',
 	},
 	// 路径配置
 	resolve: {
